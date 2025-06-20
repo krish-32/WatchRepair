@@ -1,17 +1,18 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Navigation from "./components/Navigation";
 import WatchList from "./components/WatchList";
 import WatchDetail from "./components/WatchDetail";
 import AddItemForm from "./components/AddItemForm";
-import { watchData } from "./data/watchData";
+import { Toaster } from "react-hot-toast";
 import { Menu, X } from "lucide-react";
+import Footer from "./components/Footer";
 
 function App() {
   const [activeSection, setActiveSection] = useState("view");
-  const [viewMode, setViewMode] = useState("list");
+  const [viewMode, setViewMode] = useState("view");
   const [selectedWatch, setSelectedWatch] = useState(null);
-  const [watches, setWatches] = useState(watchData);
-  const [isNavOpen, setIsNavOpen] = useState(false); // mobile nav toggle
+
+  const [isNavOpen, setIsNavOpen] = useState(false);
 
   const handleViewDetails = (watch) => {
     setSelectedWatch(watch);
@@ -26,7 +27,7 @@ function App() {
   const handleSectionChange = (section) => {
     setActiveSection(section);
     setViewMode(section === "add" ? "add" : "list");
-    setIsNavOpen(false); // close nav on mobile
+    setIsNavOpen(false);
   };
 
   const handleSaveWatch = (watchData) => {
@@ -50,11 +51,13 @@ function App() {
     if (viewMode === "detail" && selectedWatch) {
       return <WatchDetail watch={selectedWatch} onBack={handleBack} />;
     }
-    return <WatchList watches={watches} onViewDetails={handleViewDetails} />;
+    return <WatchList onViewDetails={handleViewDetails} />;
   };
 
   return (
     <>
+      <Toaster position="top-right" reverseOrder={false} />
+
       <div className="fixed top-0 inset-x-0 w-full z-50 shadow px-10 py-8 flex justify-betweem bg-gradient-to-b from-red-900 to-red-950 text-white">
         <button onClick={() => setIsNavOpen(true)}>
           <Menu className="lg:hidden w-[34px] h-[34px] text-gray-300" />
@@ -95,11 +98,12 @@ function App() {
         )}
 
         {/* Content Area */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col mb-40">
           {/* Main Content */}
           <main className="p-4">{renderContent()}</main>
         </div>
       </div>
+      <Footer />
     </>
   );
 }
