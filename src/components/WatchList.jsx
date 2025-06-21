@@ -4,7 +4,7 @@ import WatchCard from "./WatchCard";
 import Loader from "./Loading/Loading";
 import axios from "axios";
 
-const WatchList = ({ onViewDetails }) => {
+const WatchList = ({ APIUrl, onViewDetails }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchText, setSearchText] = useState("");
@@ -16,17 +16,13 @@ const WatchList = ({ onViewDetails }) => {
   useEffect(() => {
     setIsLoading(true);
     const fetchWatches = async () => {
-      try {
-        const watchData = await axios.get(
-          `http://localhost:5000/watch-list?list=${activeTab}&&searchText=${searchTerm}`
-        );
+      const watchData = await axios.get(
+        `${APIUrl}/watch-list/?list=${activeTab}&&searchText=${searchTerm}`
+      );
 
-        setWatches(watchData.data.watches);
-        setRepairedCount(watchData.data.repairedCount);
-        setPendingCount(watchData.data.pendingCount);
-      } catch (error) {
-        console.error("Upload error:", error);
-      }
+      setWatches(watchData.data.watches);
+      setRepairedCount(watchData.data.repairedCount);
+      setPendingCount(watchData.data.pendingCount);
     };
     fetchWatches();
     setIsLoading(false);

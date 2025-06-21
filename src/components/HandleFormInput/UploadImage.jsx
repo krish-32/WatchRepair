@@ -6,7 +6,7 @@ import { autoGravity } from "@cloudinary/url-gen/qualifiers/gravity";
 import axios from "axios";
 import { Upload } from "lucide-react";
 
-const ImageUpload = ({ images = [], onChange, uploadPreset }) => {
+const ImageUpload = ({ APIUrl, images = [], onChange, uploadPreset }) => {
   const cloudName = "dnxsvsdaq";
 
   useEffect(() => {
@@ -47,7 +47,7 @@ const ImageUpload = ({ images = [], onChange, uploadPreset }) => {
     const publicId = urlToDelete.split("/").slice(-1)[0].split(".")[0];
 
     try {
-      const response = await axios.post("http://localhost:5000/delete-image", {
+      const response = await axios.post(`${APIUrl}/delete-image`, {
         publicId: publicId,
       });
 

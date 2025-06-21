@@ -70,7 +70,7 @@ const balanceToPay = (amount, advancePaid) => {
   return (amountValue - advancePaidValue).toFixed(2);
 };
 
-const AddItemForm = () => {
+const AddItemForm = ({ APIUrl }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [images, setImages] = useState([]);
   const [addInputForWatchName, setAddInputForWatchName] = useState(false);
@@ -169,11 +169,10 @@ const AddItemForm = () => {
       delivery_date: data.delivery_date || null,
     };
 
-    console.log(payload);
-
     try {
       setIsSaving(true);
-      await axios.post("http://localhost:5000/add-watch", payload, {
+      await axios.post(`${APIUrl}/add-watch`, payload, {
+        withCredentials: true,
         headers: {
           "Content-Type": "application/json",
         },
@@ -272,6 +271,7 @@ const AddItemForm = () => {
               </label>
 
               <ImageUpload
+                APIUrl={APIUrl}
                 onChange={handleImagesChange}
                 images={images}
                 uploadPreset="yuvaTimes"

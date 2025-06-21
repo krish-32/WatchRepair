@@ -13,6 +13,9 @@ function App() {
   const [selectedWatch, setSelectedWatch] = useState(null);
 
   const [isNavOpen, setIsNavOpen] = useState(false);
+  const APIUrl =
+    "https://krishtimes-50028696045.development.catalystappsail.in";
+  // const APIUrl = "http://localhost:5000";
 
   const handleViewDetails = (watch) => {
     setSelectedWatch(watch);
@@ -46,12 +49,24 @@ function App() {
 
   const renderContent = () => {
     if (viewMode === "add") {
-      return <AddItemForm onBack={handleBack} onSave={handleSaveWatch} />;
+      return (
+        <AddItemForm
+          APIUrl={APIUrl}
+          onBack={handleBack}
+          onSave={handleSaveWatch}
+        />
+      );
     }
     if (viewMode === "detail" && selectedWatch) {
-      return <WatchDetail watch={selectedWatch} onBack={handleBack} />;
+      return (
+        <WatchDetail
+          APIUrl={APIUrl}
+          watch={selectedWatch}
+          onBack={handleBack}
+        />
+      );
     }
-    return <WatchList onViewDetails={handleViewDetails} />;
+    return <WatchList APIUrl={APIUrl} onViewDetails={handleViewDetails} />;
   };
 
   return (

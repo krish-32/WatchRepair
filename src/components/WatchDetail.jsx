@@ -24,7 +24,7 @@ const formatDate = (timestamp) => {
   return new Date(timestamp.seconds * 1000).toLocaleDateString();
 };
 
-const WatchDetail = ({ watch, onBack }) => {
+const WatchDetail = ({ APIUrl, watch, onBack }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [hasRepair, setHasRepair] = useState(watch.hasRepair);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
@@ -42,7 +42,7 @@ const WatchDetail = ({ watch, onBack }) => {
   const updateRepairStatus = async () => {
     setIsLoading(true);
     try {
-      await axios.patch(`http://localhost:5000/${watch._id}/repair-status`, {
+      await axios.patch(`${APIUrl}/${watch._id}/repair-status`, {
         hasRepair: !hasRepair,
       });
       setHasRepair(!hasRepair);
@@ -93,7 +93,7 @@ const WatchDetail = ({ watch, onBack }) => {
     }
 
     try {
-      await axios.delete(`http://localhost:5000/watches/${watchId}/${imgId}`);
+      await axios.delete(`${APIUrl}/watches/${watchId}/${imgId}`);
 
       toast.success("Watch deleted successfully.");
       setTimeout(() => {
