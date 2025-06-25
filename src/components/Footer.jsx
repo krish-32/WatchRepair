@@ -3,20 +3,9 @@ const Footer = () => (
     <div className="max-w-6xl mx-auto px-4 text-center text-gray-700">
       <p className="text-sm">
         © {new Date().getFullYear()}{" "}
-        <span className="font-semibold text-rose-600">WatchCare</span> — All
+        <span className="font-semibold text-rose-600">Yuva Times</span> — All
         rights reserved.
       </p>
-      <div className="mt-2 flex justify-center space-x-4 text-rose-500">
-        <a href="#" className="hover:underline text-xs">
-          Privacy Policy
-        </a>
-        <a href="#" className="hover:underline text-xs">
-          Terms
-        </a>
-        <a href="#" className="hover:underline text-xs">
-          Contact
-        </a>
-      </div>
     </div>
   </footer>
 );

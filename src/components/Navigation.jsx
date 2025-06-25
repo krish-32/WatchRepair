@@ -4,11 +4,15 @@ import { FolderKanban, Plus } from "lucide-react";
 const Navigation = ({ activeSection, onSectionChange }) => {
   const navItems = [
     {
+      id: "add",
+      label: "New Repairs",
+      icon: <Plus className="w-5 h-5" />,
+    },
+    {
       id: "view",
-      label: "Manage repairs",
+      label: "Manage Repairs",
       icon: <FolderKanban className="w-5 h-5" />,
     },
-    { id: "add", label: "Add Watch", icon: <Plus className="w-5 h-5" /> },
   ];
 
   return (

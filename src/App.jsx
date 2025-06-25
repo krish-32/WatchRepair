@@ -8,8 +8,8 @@ import { Menu, X } from "lucide-react";
 import Footer from "./components/Footer";
 
 function App() {
-  const [activeSection, setActiveSection] = useState("view");
-  const [viewMode, setViewMode] = useState("view");
+  const [activeSection, setActiveSection] = useState("add");
+  const [viewMode, setViewMode] = useState("add");
   const [selectedWatch, setSelectedWatch] = useState(null);
 
   const [isNavOpen, setIsNavOpen] = useState(false);
@@ -113,7 +113,7 @@ function App() {
         )}
 
         {/* Content Area */}
-        <div className="flex-1 flex flex-col mb-40">
+        <div className="flex-1 flex flex-col mb-10">
           {/* Main Content */}
           <main className="p-4">{renderContent()}</main>
         </div>

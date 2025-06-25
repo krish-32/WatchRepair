@@ -46,7 +46,7 @@ const categories = [
   { label: "Amazfit", value: "amazfit" },
   { label: "Suunto", value: "suunto" },
   { label: "Fitbit (Smart-focused)", value: "fitbit" },
-  { label: "others", value: "others" },
+  { label: "Others", value: "Others" },
 ];
 
 const issueTypes = [
@@ -122,7 +122,7 @@ const AddItemForm = ({ APIUrl }) => {
   }, [watch("advance_paid"), watch("amount"), setValue]);
 
   useEffect(() => {
-    if (watch_name?.value === "others") {
+    if (watch_name?.value === "Others") {
       setValue("watch_name", "", {
         shouldDirty: true,
         shouldTouch: true,
@@ -192,8 +192,8 @@ const AddItemForm = ({ APIUrl }) => {
   return (
     <>
       {isSaving && <Loader />}
-      <div className="w-full min-h-screen bg-gradient-to-br from-pink-50 to-red-50 flex flex-col">
-        <div className="bg-gradient-to-r from-red-900 to-red-800 text-white px-4 sm:px-6 py-6 rounded-xl mb-5">
+      <div className="flex-1 min-h-screen bg-gradient-to-br from-pink-50 to-red-50">
+        <div className="bg-gradient-to-r from-red-900 to-red-800 text-white p-6 rounded-lg">
           {/* <button
           onClick={onBack}
           className="flex items-center space-x-2 mb-4 text-red-200 hover:text-white transition-colors"
@@ -201,54 +201,111 @@ const AddItemForm = ({ APIUrl }) => {
           <ArrowLeft className="w-5 h-5" />
           <span>Back to Dashboard</span>
         </button> */}
-          <h1 className="text-2xl sm:text-3xl font-bold">Add Watch</h1>
+          <h1 className="text-3xl font-bold mb-2">New Repairs</h1>
           <p className="text-red-200">Submit repair request</p>
         </div>
 
-        <div className="flex-grow w-full flex items-center justify-center px-4 sm:px-6 py-6">
+        <div className="flex-grow w-full flex items-center justify-center mt-6">
           <form
             onSubmit={handleSubmit(onSubmit)}
             className="w-full max-w-5xl bg-white rounded-xl shadow-lg p-6 sm:p-8"
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-              {/* Input fields unchanged */}
-              {/* Brand */}
+            <div className="space-y-6">
+              {/* Grouped Inputs */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Name */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Name *
+                  </label>
+                  <InputRequired
+                    label="Enter the name"
+                    id="name"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+                    disabled={isLoading}
+                    register={register}
+                    errors={errors}
+                    required
+                  />
+                </div>
+
+                {/* Address */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Address (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+                    placeholder="Address"
+                    {...register("address")}
+                    disabled={isLoading}
+                  />
+                </div>
+
+                {/* Phone Number */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Phone Number *
+                  </label>
+                  <InputRequired
+                    label="Phone Number"
+                    id="phone_no"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+                    disabled={isLoading}
+                    register={register}
+                    errors={errors}
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Image Upload */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Name *
+                  Upload Image (Optional)
                 </label>
-
-                <InputRequired
-                  label="Enter the name"
-                  id="name"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-                  disabled={isLoading}
-                  register={register}
-                  errors={errors}
-                  required
+                <ImageUpload
+                  APIUrl={APIUrl}
+                  onChange={handleImagesChange}
+                  images={images}
+                  uploadPreset="yuvaTimes"
                 />
               </div>
 
-              {/* Model */}
+              {/* Watch Brand Name */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Address (optional)
+                  Watch Brand Name *
                 </label>
-                <input
-                  type="text"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-                  placeholder="Address"
-                  {...register("address", { required: false })}
-                  disabled={isLoading}
+                <CategorySelect
+                  categories={categories}
+                  value={addInputForWatchName ? "Others" : watch_name?.value}
+                  onChange={(value) => setCustomValue("watch_name", value)}
+                  label="Watch Name"
                 />
               </div>
 
-              {/* ... All other fields remain unchanged ... */}
-              {/* Include Price, Year, Condition, Status, Serial Number, etc. */}
+              {addInputForWatchName && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Watch Name (If not listed)
+                  </label>
+                  <input
+                    placeholder="Watch Brand Name"
+                    id="watch_name"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+                    disabled={isLoading}
+                    onChange={(e) =>
+                      setCustomValue("watch_name", { value: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+              )}
 
-              {/* Repair Notes conditional */}
-              {/* {formData.status === "repaired" && ( */}
-              <div className="md:col-span-2">
+              {/* Model Number */}
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Model Number *
                 </label>
@@ -262,173 +319,113 @@ const AddItemForm = ({ APIUrl }) => {
                   required
                 />
               </div>
-              {/* )} */}
-            </div>
-            {/* Description and Image */}
-            <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Upload Image (optional)
-              </label>
 
-              <ImageUpload
-                APIUrl={APIUrl}
-                onChange={handleImagesChange}
-                images={images}
-                uploadPreset="yuvaTimes"
-              />
-            </div>
-            <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Phone Number *
-              </label>
-              <InputRequired
-                label="Phone Number"
-                id="phone_no"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-                disabled={isLoading}
-                register={register}
-                errors={errors}
-                required
-              />
-            </div>
-            <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Watch Brand Name *
-              </label>
-              {/* change to select option */}
-
-              <CategorySelect
-                categories={categories}
-                value={addInputForWatchName ? "others" : watch_name?.value}
-                onChange={(value) => setCustomValue("watch_name", value)}
-                label="Watch Name"
-              />
-            </div>
-            {addInputForWatchName && (
-              <div className="mt-6">
+              {/* Issue Types */}
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Watch Name (if not listed)
+                  Issue Types *
                 </label>
-                <input
-                  label="watch_name"
-                  id="watch_name"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-                  disabled={isLoading}
+                <div className="flex flex-wrap gap-4">
+                  {issueTypes.map((option, index) => (
+                    <Checkbox
+                      key={index}
+                      name={`nature_of_repair[${index}]`}
+                      control={control}
+                      label={option}
+                      value={option}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Issue Description */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Issue Description (Optional if not listed)
+                </label>
+                <textarea
                   onChange={(e) =>
-                    setCustomValue("watch_name", { value: e.target.value })
+                    setCustomValue("issue_description", e.target.value)
                   }
-                  errors={errors}
-                  required
-                />
+                  placeholder="Enter issue description"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+                  disabled={isLoading}
+                ></textarea>
               </div>
-            )}
-            <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Issue Types *
-              </label>
-              {/* change to select option */}
 
-              <div className="flex flex-wrap gap-4">
-                {issueTypes.map((option, index) => (
-                  <Checkbox
-                    key={index}
-                    name={`nature_of_repair[${index}]`}
-                    control={control}
-                    label={option}
-                    value={option}
+              {/* Amount and Delivery */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Amount *
+                  </label>
+                  <InputRequired
+                    label="Amount"
+                    id="amount"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+                    disabled={isLoading}
+                    register={register}
+                    errors={errors}
+                    required
                   />
-                ))}
-              </div>
-            </div>
-            <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Issue description (optional if not listed)
-              </label>
-              <textarea
-                onChange={(e) =>
-                  setCustomValue("issue_description", e.target.value)
-                }
-                placeholder="Enter issue description"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-                disabled={isLoading}
-              ></textarea>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Amount *
-                </label>
-                <InputRequired
-                  label="Amount"
-                  id="amount"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-                  disabled={isLoading}
-                  register={register}
-                  errors={errors}
-                  required
-                />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Delivery Date (Optional)
+                  </label>
+                  <input
+                    id="delivery_date"
+                    type="date"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+                    {...register("delivery_date")}
+                    disabled={isLoading}
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Delivery Date (optional)
-                </label>
-                <input
-                  id="delivery_date"
-                  type="date"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-                  placeholder="delivery_date"
-                  {...register("delivery_date", { required: false })}
-                  disabled={isLoading}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Input fields unchanged */}
-              {/* Brand */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Advance Paid *(mark it as 0 if not paid)
-                </label>
+              {/* Advance Paid & Balance */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Advance Paid *(Mark it as 0 if not paid)
+                  </label>
+                  <InputRequired
+                    label="Advance Paid"
+                    id="advance_paid"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+                    disabled={isLoading}
+                    register={register}
+                    errors={errors}
+                    required
+                  />
+                </div>
 
-                <InputRequired
-                  label="Advance Paid"
-                  id="advance_paid"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-                  disabled={isLoading}
-                  register={register}
-                  errors={errors}
-                  required
-                />
-              </div>
-
-              {/* Model */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Balance To Pay *(calculated automatically)
-                </label>
-                <InputRequired
-                  label="balance To Pay"
-                  id="balance_to_pay"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-                  disabled={isLoading}
-                  register={register}
-                  errors={errors}
-                  required
-                />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Balance To Pay *(Calculated automatically)
+                  </label>
+                  <InputRequired
+                    label="Balance To Pay"
+                    id="balance_to_pay"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+                    disabled={isLoading}
+                    register={register}
+                    errors={errors}
+                    required
+                  />
+                </div>
               </div>
 
-              {/* )} */}
-            </div>
-            <div className="mt-8 flex justify-end">
-              <button
-                type="submit"
-                className="bg-red-900 hover:bg-red-800 text-white px-8 py-3 rounded-lg font-medium transition-all flex items-center space-x-2 transform hover:scale-105"
-              >
-                <Save className="w-5 h-5" />
-                <span>Save Watch</span>
-              </button>
+              {/* Submit Button */}
+              <div className="flex justify-end pt-4">
+                <button
+                  type="submit"
+                  className="bg-red-900 hover:bg-red-800 text-white px-8 py-3 rounded-lg font-medium transition-all flex items-center space-x-2 transform hover:scale-105"
+                >
+                  <Save className="w-5 h-5" />
+                  <span>Save Watch</span>
+                </button>
+              </div>
             </div>
           </form>
         </div>

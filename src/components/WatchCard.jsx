@@ -1,7 +1,14 @@
 import React from "react";
 import { Calendar, Wallet, Wallet2, Wrench, Tag } from "lucide-react";
 
+const formatDate = (timestamp) => {
+  if (!timestamp) return "N/A";
+  return new Date(timestamp).toLocaleDateString();
+};
+
 const WatchCard = ({ watch, onViewDetails }) => {
+  //console.log("WatchCard watch:", watch);
+
   return (
     <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1">
       <div className="relative">
@@ -21,30 +28,34 @@ const WatchCard = ({ watch, onViewDetails }) => {
               : "bg-yellow-100 text-yellow-800"
           }`}
         >
-          {watch?.hasRepair ? "Completed" : "In Progress"}
+          {watch?.hasDelivered
+            ? "Delivered"
+            : watch?.hasRepair
+            ? "Repaired"
+            : "In Progress"}
         </div>
       </div>
 
       <div className="p-6">
         <div className="mb-3">
-          <h3 className="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
+          <h3 className="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2 capitalize">
             <Tag className="w-4 h-4 text-gray-500" />
             {watch?.watch_name} {watch?.model_no}
           </h3>
           <p className="text-sm text-gray-600 flex items-center gap-2">
             <Calendar className="w-4 h-4 text-gray-400" />
-            Delivery:{" "}
-            {new Date(watch.date?.seconds * 1000).toLocaleDateString()} •
+            Delivery: {formatDate(watch.delivery_date)}{" "}
             <Wallet2 className="w-4 h-4 ml-2 text-gray-400" />
             Balance: ₹{watch.balance_to_pay}
           </p>
         </div>
 
-        <p className="text-gray-700 text-sm mb-4 line-clamp-2 flex items-center gap-2">
-          <Wrench className="w-4 h-4 text-gray-500" />
-          {watch.nature_of_repair.length > 0
-            ? watch.nature_of_repair?.join(", ")
-            : watch?.issue_description || "No description provided"}
+        <p className="text-gray-700 text-sm mb-4 line-clamp-2 flex items-start gap-2">
+          <Wrench className="w-4 h-4 text-gray-500 flex-shrink-0 mt-0.5" />
+          {[
+            ...(watch.nature_of_repair?.length ? watch.nature_of_repair : []),
+            ...(watch.issue_description ? [watch.issue_description] : []),
+          ].join(", ") || "No description provided"}
         </p>
 
         <div className="flex items-center justify-between">

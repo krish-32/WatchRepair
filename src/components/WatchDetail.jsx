@@ -2,17 +2,19 @@ import React, { useState } from "react";
 import toast from "react-hot-toast";
 
 import {
-  ArrowLeft,
+  User,
+  ArrowRight,
   Calendar,
   Settings,
   Wrench,
   Trash2,
-  RefreshCcw,
   Phone,
   MapPin,
   Wallet,
   Wallet2,
   Tag,
+  CheckCircle,
+  Truck,
 } from "lucide-react";
 import Loader from "./Loading/Loading";
 import axios from "axios";
@@ -20,14 +22,17 @@ import { useNavigate } from "react-router-dom";
 import { Alert } from "../components/Notification/Alert";
 
 const formatDate = (timestamp) => {
-  if (!timestamp || !timestamp.seconds) return "N/A";
-  return new Date(timestamp.seconds * 1000).toLocaleDateString();
+  if (!timestamp) return "N/A";
+  return new Date(timestamp).toLocaleDateString();
 };
 
 const WatchDetail = ({ APIUrl, watch, onBack }) => {
+  //console.log("WatchDetail watch:", watch);
+
   const [isLoading, setIsLoading] = useState(false);
   const [hasRepair, setHasRepair] = useState(watch.hasRepair);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [isUpdateStatusAlertOpen, setIsUpdateStatusAlertOpen] = useState(false);
   const [watchId, setWatchId] = useState(null);
   const [imgId, setImgId] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
@@ -39,38 +44,39 @@ const WatchDetail = ({ APIUrl, watch, onBack }) => {
     : "Your watch has been repaired. Please come and collect it at your convenience. Thank you!";
   const encodedMessage = encodeURIComponent(userMessage);
 
-  const updateRepairStatus = async () => {
-    setIsLoading(true);
-    try {
-      await axios.patch(`${APIUrl}/${watch._id}/repair-status`, {
-        hasRepair: !hasRepair,
-      });
-      setHasRepair(!hasRepair);
-      setShowPopup(false);
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error updating repair status:", error);
-    }
-  };
-
   const handleWhatsApp = async () => {
     setIsLoading(true);
     const whatsappUrl = `https://wa.me/${watch.phone_no}?text=${encodedMessage}`;
-    window.location.href = whatsappUrl;
-    await updateRepairStatus();
+    window.open(whatsappUrl, "_blank");
+    setIsUpdateStatusAlertOpen(true);
+    setShowPopup(false);
     setIsLoading(false);
   };
 
   const handleSMS = async () => {
     setIsLoading(true);
     const smsUrl = `sms:${watch.phone_no}?body=${encodedMessage}`;
-    window.location.href = smsUrl;
-    await updateRepairStatus();
+    window.open(smsUrl, "_blank");
+    setIsUpdateStatusAlertOpen(true);
+    setShowPopup(false);
     setIsLoading(false);
   };
 
-  const handleToggleStatus = () => {
-    setShowPopup(true);
+  const handleToggleStatus = async () => {
+    if (hasRepair) {
+      try {
+        await axios.patch(`${APIUrl}/${watch._id}/delivery-status`);
+        toast.success("Delivery date updated successfully.");
+        setTimeout(() => {
+          navigate(0);
+        }, 1000);
+      } catch (error) {
+        console.error("Failed to update delivery date:", error);
+        toast.error("Failed to update delivery date.");
+      }
+    } else {
+      setShowPopup(true);
+    }
   };
 
   const handleDelete = () => {
@@ -111,6 +117,28 @@ const WatchDetail = ({ APIUrl, watch, onBack }) => {
     setIsAlertOpen(false);
   };
 
+  const handleRepairConfirm = async () => {
+    setIsLoading(true);
+    try {
+      await axios.patch(`${APIUrl}/${watch._id}/repair-status`, {
+        hasRepair: !hasRepair,
+      });
+      setIsUpdateStatusAlertOpen(false);
+      setIsLoading(false);
+      toast.success("Repair status updated to 'Repaired'.");
+      setTimeout(() => {
+        navigate(0);
+      }, 1000);
+    } catch (error) {
+      console.error("Error updating repair status:", error);
+    }
+  };
+
+  const handleRepairCancel = () => {
+    setIsUpdateStatusAlertOpen(false);
+    setIsLoading(false);
+  };
+
   return (
     <>
       {isLoading && <Loader />}
@@ -142,38 +170,35 @@ const WatchDetail = ({ APIUrl, watch, onBack }) => {
       )}
       <div className="w-full min-h-screen bg-gradient-to-br from-pink-50 to-red-50">
         <div className="bg-gradient-to-r from-red-900 to-red-800 text-white p-6 rounded-xl flex justify-between items-start">
-          <div>
-            <button
-              onClick={onBack}
-              className="flex items-center space-x-2 mb-4 text-red-200 hover:text-white transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              <span>Back to List</span>
-            </button>
-            <h1 className="text-3xl font-bold capitalize">
-              {watch.watch_name}
-            </h1>
-            <p className="text-red-200">Customer: {watch.name}</p>
-          </div>
-          <div className="flex gap-3">
-            <button
-              onClick={handleToggleStatus}
-              className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg flex items-center"
-            >
-              <RefreshCcw className="w-4 h-4 mr-2" />
-              {hasRepair ? "Mark as Pending" : "Mark as Repaired"}
-            </button>
-            <button
-              onClick={handleDelete}
-              className="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded-lg flex items-center"
-            >
-              <Trash2 className="w-4 h-4 mr-2" />
-              Delete
-            </button>
+          <div className="space-y-2">
+            <div className="flex items-center gap-x-6">
+              <button
+                className="relative w-14 h-14 bg-transparent border-none cursor-pointer outline-none overflow-hidden group"
+                onClick={onBack}
+              >
+                {/* Outer ring */}
+                <span className="absolute inset-[7px] rounded-full border-4 border-[#f0eeef] transition-all duration-500 group-hover:opacity-0 group-hover:scale-75"></span>
+
+                {/* Hover ring */}
+                <span className="absolute inset-[7px] rounded-full border-4 border-[#96daf0] scale-[1.3] opacity-0 transition-all duration-500 group-hover:opacity-100 group-hover:scale-100"></span>
+
+                {/* Icon box */}
+                <div className="absolute top-0 left-0 flex transform transition-transform duration-500 group-hover:-translate-x-14">
+                  <ArrowRight className="w-5 h-5 mt-[17px] mx-[18px] rotate-180 text-[#f0eeef]" />
+                  <ArrowRight className="w-5 h-5 mt-[17px] mx-[18px] rotate-180 text-[#f0eeef]" />
+                </div>
+              </button>
+              <div>
+                <h1 className="text-3xl font-bold capitalize">
+                  {watch.watch_name}
+                </h1>
+                <p className="text-red-200 text-sm">Customer: {watch.name}</p>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="max-w-6xl mx-auto p-6">
+        <div className="max-w-6xl mx-auto mt-2">
           <div className="grid lg:grid-cols-2 gap-8">
             <div className="space-y-6">
               <div className="bg-white rounded-xl shadow-lg overflow-hidden">
@@ -184,7 +209,7 @@ const WatchDetail = ({ APIUrl, watch, onBack }) => {
                       : watch?.image[0]
                   }
                   alt={watch.watch_name}
-                  className="w-full h-96 object-cover"
+                  className="w-full h-96 object-contain"
                 />
               </div>
 
@@ -194,9 +219,14 @@ const WatchDetail = ({ APIUrl, watch, onBack }) => {
                 </h2>
                 <p className="text-gray-700 leading-relaxed">
                   <strong>Nature of Repair:</strong>{" "}
-                  {watch.nature_of_repair.length > 0
-                    ? watch.nature_of_repair.join(", ")
-                    : watch.issue_description || "No description provided"}
+                  {[
+                    ...(watch.nature_of_repair?.length
+                      ? watch.nature_of_repair
+                      : []),
+                    ...(watch.issue_description
+                      ? [watch.issue_description]
+                      : []),
+                  ].join(", ") || "No description provided"}
                 </p>
                 <p className="text-gray-700 leading-relaxed mt-2">
                   <strong>Delivery Date:</strong>{" "}
@@ -225,7 +255,7 @@ const WatchDetail = ({ APIUrl, watch, onBack }) => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium text-gray-500 flex items-center gap-1">
-                      <Settings className="w-4 h-4 text-gray-400" />
+                      <User className="w-4 h-4 text-gray-400" />
                       Customer Name
                     </label>
                     <p className="text-gray-900 font-semibold">{watch.name}</p>
@@ -295,9 +325,7 @@ const WatchDetail = ({ APIUrl, watch, onBack }) => {
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Watch Name</span>
-                    <span className="text-gray-900 font-mono">
-                      {watch.watch_name}
-                    </span>
+                    <span className="text-gray-900">{watch.watch_name}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Model No.</span>
@@ -306,7 +334,7 @@ const WatchDetail = ({ APIUrl, watch, onBack }) => {
                 </div>
               </div>
 
-              {hasRepair && watch.delivery_date && (
+              {hasRepair && watch.delivery_date && watch.hasDelivered && (
                 <div className="bg-green-50 border border-green-200 rounded-xl p-6">
                   <h3 className="text-lg font-bold text-green-900 mb-4 flex items-center">
                     <Wrench className="w-5 h-5 mr-2" />
@@ -324,7 +352,34 @@ const WatchDetail = ({ APIUrl, watch, onBack }) => {
               )}
             </div>
           </div>
+          <div className="max-w-6xl mx-auto p-6">
+            <div className="flex justify-end space-x-4">
+              {!watch.hasDelivered && (
+                <button
+                  onClick={handleToggleStatus}
+                  className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg flex items-center"
+                >
+                  {hasRepair ? (
+                    <Truck className="w-6 h-6 mr-2" />
+                  ) : (
+                    <CheckCircle className="w-6 h-6 mr-2" />
+                  )}
+
+                  {hasRepair ? "Mark as Delivered" : "Mark as Repaired"}
+                </button>
+              )}
+
+              <button
+                onClick={handleDelete}
+                className="bg-red-700 hover:bg-red-800 text-white px-6 py-3 rounded-lg flex items-center"
+              >
+                <Trash2 className="w-5 h-5 mr-2" />
+                Delete
+              </button>
+            </div>
+          </div>
         </div>
+
         <Alert
           isOpen={isAlertOpen}
           message="This action will permanently delete the watch details. Continue?"
@@ -333,6 +388,17 @@ const WatchDetail = ({ APIUrl, watch, onBack }) => {
           onYes={handleConfirm}
           onNo={handleCancel}
           onClose={() => setIsAlertOpen(false)}
+          isLoading={isLoading}
+        />
+
+        <Alert
+          isOpen={isUpdateStatusAlertOpen}
+          message="Do you like to update the repair status of this watch?"
+          title={watch.watch_name}
+          image={watch.image?.[0]}
+          onYes={handleRepairConfirm}
+          onNo={handleRepairCancel}
+          onClose={() => setIsUpdateStatusAlertOpen(false)}
           isLoading={isLoading}
         />
       </div>

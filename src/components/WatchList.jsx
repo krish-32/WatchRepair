@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Search } from "lucide-react";
+import { ArrowLeft, Search } from "lucide-react";
 import WatchCard from "./WatchCard";
 import Loader from "./Loading/Loading";
 import axios from "axios";
@@ -12,9 +12,12 @@ const WatchList = ({ APIUrl, onViewDetails }) => {
   const [watches, setWatches] = useState([]);
   const [repairedCount, setRepairedCount] = useState(0);
   const [pendingCount, setPendingCount] = useState(0);
+  const [deliveryCount, setDeliveryCount] = useState(0);
 
   useEffect(() => {
     setIsLoading(true);
+    //console.log(activeTab);
+
     const fetchWatches = async () => {
       const watchData = await axios.get(
         `${APIUrl}/watch-list/?list=${activeTab}&&searchText=${searchTerm}`
@@ -23,6 +26,7 @@ const WatchList = ({ APIUrl, onViewDetails }) => {
       setWatches(watchData.data.watches);
       setRepairedCount(watchData.data.repairedCount);
       setPendingCount(watchData.data.pendingCount);
+      setDeliveryCount(watchData.data.deliveryCount);
     };
     fetchWatches();
     setIsLoading(false);
@@ -37,13 +41,24 @@ const WatchList = ({ APIUrl, onViewDetails }) => {
           <p className="text-red-200">Professional Watch Management System</p>
         </div>
 
-        <div className="p-6">
-          <div className="bg-gradient-to-r from-pink-100 to-red-100 rounded-xl p-6 mb-6">
+        <div className="pt-2">
+          <div className="bg-gradient-to-r from-pink-100 to-red-100 rounded-xl mb-6">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-              <div className="flex space-x-1">
+              {/* Tab Buttons */}
+              <div className="flex gap-2 w-full lg:w-auto">
+                <button
+                  onClick={() => setActiveTab("delivered")}
+                  className={`px-2.5 lg:px-6 py-3 rounded-lg font-medium transition-all duration-200 flex-1 ${
+                    activeTab === "delivered"
+                      ? "bg-red-900 text-white shadow-lg"
+                      : "bg-white text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  Delivered Watches ({deliveryCount})
+                </button>
                 <button
                   onClick={() => setActiveTab("repaired")}
-                  className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 mr-4 ${
+                  className={`px-2.5 lg:px-6 py-3 rounded-lg font-medium transition-all duration-200 flex-1 ${
                     activeTab === "repaired"
                       ? "bg-red-900 text-white shadow-lg"
                       : "bg-white text-gray-700 hover:bg-gray-50"
@@ -53,32 +68,33 @@ const WatchList = ({ APIUrl, onViewDetails }) => {
                 </button>
                 <button
                   onClick={() => setActiveTab("pending")}
-                  className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+                  className={`px-2.5 lg:px-6 py-3 rounded-lg font-medium transition-all duration-200 flex-1 ${
                     activeTab === "pending"
                       ? "bg-red-900 text-white shadow-lg"
                       : "bg-white text-gray-700 hover:bg-gray-50"
                   }`}
                 >
-                  Pending ({pendingCount})
+                  Pending Repairs({pendingCount})
                 </button>
               </div>
 
-              <div className="flex items-center space-x-3">
-                <div className="relative">
+              {/* Responsive Search Bar */}
+              <div className="flex items-center bg-white rounded-lg shadow-sm border border-gray-300 overflow-hidden w-full lg:max-w-md">
+                <div className="relative flex-grow">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <input
                     type="text"
                     placeholder="Search watches..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent w-64"
+                    className="pl-10 pr-4 py-2 w-full text-sm text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-red-500"
                   />
                 </div>
                 <button
-                  className="bg-red-900 hover:bg-red-800 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200"
                   onClick={() => setSearchText(searchTerm.trim().toLowerCase())}
+                  className="bg-red-900 hover:bg-red-800 text-white px-4 py-2 flex items-center justify-center transition-colors duration-200"
                 >
-                  Search
+                  <Search className="w-5 h-5" />
                 </button>
               </div>
             </div>
