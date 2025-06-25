@@ -13,8 +13,8 @@ function App() {
   const [selectedWatch, setSelectedWatch] = useState(null);
 
   const [isNavOpen, setIsNavOpen] = useState(false);
-  const APIUrl =
-    "https://krishtimes-50028696045.development.catalystappsail.in";
+  const APIUrl = import.meta.env.VITE_API_URL;
+
   // const APIUrl = "http://localhost:5000";
 
   const handleViewDetails = (watch) => {

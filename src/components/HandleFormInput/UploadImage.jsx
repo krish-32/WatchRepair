@@ -7,7 +7,8 @@ import axios from "axios";
 import { Upload } from "lucide-react";
 
 const ImageUpload = ({ APIUrl, images = [], onChange, uploadPreset }) => {
-  const cloudName = "dnxsvsdaq";
+  //const cloudName = "dnxsvsdaq";
+  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 
   useEffect(() => {
     if (!window.cloudinary) {
